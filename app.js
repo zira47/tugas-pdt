@@ -173,8 +173,8 @@ window.handleFileSelect = function(input) {
 // =====================
 // 2. SETUP DATABASE SUPABASE
 // =====================
-const dbUrl = CONFIG.SUPABASE_URL; 
-const dbKey = CONFIG.SUPABASE_ANON_KEY; 
+const dbUrl = 'https://lvfppbkgaxqegauualpx.supabase.co'; 
+const dbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2ZnBwYmtnYXhxZWdhdXVhbHB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNjk0OTYsImV4cCI6MjA5MzY0NTQ5Nn0.Mx6mWUTbJudjWuieivB3CnExxJULtZ7awVs1Fubumdk';
 
 let myDatabase = null;
 if (window.supabase) {
