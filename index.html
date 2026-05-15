@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusFind — Lost & Found System</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<h2 class="sr-only">CampusFind — Lost and Found web app with browse, report, chat, and security features</h2>
+
+<nav class="nav">
+  <div class="nav-logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 16 16">
+        <circle cx="6" cy="6" r="4"/>
+        <line x1="9.5" y1="9.5" x2="13" y2="13"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-text">CampusFind</div>
+      <div class="logo-sub">Lost &amp; Found System</div>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <div class="tab active" onclick="showPage('browse', this)">Browse Items</div>
+    <div class="tab" onclick="showPage('report', this)">Report Found</div>
+    <div class="tab" onclick="showPage('verify', this)">Verify Ownership</div>
+    <div class="tab" onclick="showPage('security', this)">Security</div>
+  </div>
+
+  <button id="theme-toggle" onclick="toggleDarkMode()" style="margin-left: 15px; background: none; border: none; font-size: 20px; cursor: pointer; transition: transform 0.2s;">
+    🌙
+  </button>
+</nav>
+
+<div class="content">
+
+  <div class="page active" id="page-browse">
+    <div class="browse-header">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="6" cy="6" r="4"/><line x1="9.5" y1="9.5" x2="13" y2="13"/>
+        </svg>
+        <input type="text" placeholder="Search items, location, date...">
+      </div>
+      <button class="filter-btn active-f" onclick="filterItems('all', this)">All</button>
+      <button class="filter-btn" onclick="filterItems('available', this)">Available</button>
+      <button class="filter-btn" onclick="filterItems('security', this)">At Security</button>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-pill"><span id="stat-total">0</span> items found this month</div>
+      <div class="stat-pill"><span id="stat-returned">0</span> returned to owner</div>
+      <div class="stat-pill"><span id="stat-security">0</span> at security post</div>
+    </div>
+
+    <div class="item-grid" id="item-grid"></div>
+  </div>
+
+  <div class="page" id="page-report">
+    <div class="form-wrap">
+      <div class="form-title">Report a found item</div>
+      <div class="form-sub">Fill in the details of the item you found. Campus security will be notified if needed.</div>
+
+      <div class="form-group">
+        <label class="form-label">Photo of item</label>
+        
+        <label for="item-photo" class="upload-zone" id="upload-zone-label" style="display: block;">
+          <div class="upload-icon" id="upload-icon">📎</div>
+          <div class="upload-text" id="upload-text">Click to upload photo</div>
+        </label>
+        
+        <input type="file" id="item-photo" accept="image/*" class="sr-only" onchange="handleFileSelect(this)">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Item name / description</label>
+        <input class="form-input" type="text" placeholder="e.g. Black wallet, blue keychain, MacBook charger...">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Description details</label>
+        <textarea class="form-textarea" placeholder="Color, brand, any identifying marks or contents..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Location found</label>
+          <input class="form-input" type="text" placeholder="e.g. Library 2nd floor">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date found</label>
+          <input class="form-input" type="date">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-input">
+          <option value="">Select category...</option>
+          <option>Electronics</option>
+          <option>Accessories</option>
+          <option>Documents / ID</option>
+          <option>Clothing</option>
+          <option>Bag / Wallet</option>
+          <option>Keys</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Your contact info (shown to verified owners only)</label>
+        <input class="form-input" type="text" placeholder="WhatsApp number or LINE ID">
+      </div>
+
+      <div class="security-toggle">
+        <div class="toggle" id="sec-toggle" onclick="toggleSecurity(this)">
+          <div class="toggle-dot"></div>
+        </div>
+        <div class="security-label">Hand item to security post — they will hold it until claimed</div>
+      </div>
+
+      <button class="submit-btn" onclick="submitForm()">Submit found item report</button>
+    </div>
+  </div>
+
+  <div class="page" id="page-verify">
+    <div class="chat-layout">
+
+      <div class="chat-sidebar">
+        <div class="chat-sidebar-header">Select Item to Claim</div>
+        <div id="verify-sidebar-list"></div>
+      </div>
+
+      <div id="verify-empty" style="flex: 1; display: flex; align-items: center; justify-content: center; color: var(--color-text-tertiary); background: var(--color-background-primary);">
+        Please select an item from the sidebar to verify your claim.
+      </div>
+
+      <div class="chat-main" id="verify-main" style="display: none; padding: 30px; overflow-y: auto; width: 100%; height: 100%; background: var(--color-background-primary);">
+        <div class="form-wrap" style="margin: 0; max-width: 100%; box-shadow: none; padding: 0;">
+          
+          <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--color-border-secondary);">
+            <img id="v-item-img" src="" style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px; background: #eee;">
+            <div>
+              <h3 id="v-item-name" class="item-name" style="margin: 0 0 10px 0; font-size: 20px;">Item Name</h3>
+              <div id="v-item-status" class="status-badge">Status</div>
+              <div id="v-item-contact" style="margin-top: 12px; font-size: 14px; display: none;">
+                <strong style="color: var(--color-text-secondary);">Finder Contact:</strong> 
+                <span id="v-contact-info" style="color: var(--brand); font-weight: bold;"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-title">Verify & Claim Item</div>
+          <div class="form-sub" style="color: #e55; font-weight: bold; margin-bottom: 20px;">
+            ⚠️ Warning: Only submit this form if you have successfully received the item back!
+          </div>
+
+          <input type="hidden" id="v-item-idx">
+
+          <div class="form-group">
+            <label class="form-label">Proof Photo (Item in your hands)</label>
+            <label for="claim-photo" class="upload-zone" id="claim-upload-zone-label" style="display: block;">
+              <div class="upload-icon" id="claim-upload-icon">📎</div>
+              <div class="upload-text" id="claim-upload-text">Click to upload photo</div>
+            </label>
+            <input type="file" id="claim-photo" accept="image/*" class="sr-only" onchange="handleClaimFileSelect(this)">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Owner's Full Name</label>
+            <input type="text" id="claim-name" class="form-input" placeholder="Enter your full name">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Date Received</label>
+            <input type="date" id="claim-date" class="form-input">
+          </div>
+
+          <button class="submit-btn" id="claim-submit-btn" onclick="submitClaim()">Submit & Mark as Claimed</button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="page-security">
+    <div class="security-wrap">
+      <div class="sec-header">
+        <div class="sec-title">Security post — item custody log</div>
+        <button class="filter-btn" style="font-size:12px;" onclick="exportLog()">Export log</button>
+      </div>
+
+      <div class="sec-stats">
+        <div class="sec-stat">
+          <div class="sec-stat-num" style="color:var(--brand);">7</div>
+          <div class="sec-stat-label">Items held</div>
+        </div>
+        <div class="sec-stat">
+          <div class="sec-stat-num">11</div>
+          <div class="sec-stat-label">Released this month</div>
+        </div>
+        <div class="sec-stat">
+          <div class="sec-stat-num" style="color:var(--warn);">3</div>
+          <div class="sec-stat-label">Pending &gt;7 days</div>
+        </div>
+        <div class="sec-stat">
+          <div class="sec-stat-num">24</div>
+          <div class="sec-stat-label">Total reports</div>
+        </div>
+      </div>
+
+    <table class="sec-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Found by</th>
+                <th>Location</th>
+                <th>Date in</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="security-table-body">
+          </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="modal-img" id="m-img">👜</div>
+    <div class="modal-title" id="m-name">Item name</div>
+    <div class="modal-detail" id="m-desc"></div>
+    <div class="modal-detail" id="m-loc"></div>
+    <div class="modal-detail" id="m-date"></div>
+    <div class="modal-detail" id="m-status"></div>
+    <div class="modal-actions">
+      <button class="modal-chat-btn" onclick="goToChat()">I Find My Item</button>
+      <button class="modal-close" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="success-toast" id="toast">✅ Item reported successfully!</div>
+
+<div class="image-viewer" id="image-viewer">
+  <img class="iv-content" id="iv-img">
+</div>
+
+<script src="https://unpkg.com/@panzoom/panzoom/dist/panzoom.min.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
