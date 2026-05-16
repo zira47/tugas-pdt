@@ -98,7 +98,138 @@ body {
   min-height: 100vh;
 }
 
-/* === NAVBAR === */
+/* === MOBILE TOP BAR === */
+.nav-mobile {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--color-background-primary);
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* === HAMBURGER BUTTON === */
+.hamburger-btn {
+  width: 40px;
+  height: 40px;
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 0;
+}
+.hamburger-btn span {
+  display: block;
+  width: 18px;
+  height: 1.5px;
+  background: var(--color-text-primary);
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+/* === DRAWER OVERLAY === */
+.drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 200;
+  backdrop-filter: blur(2px);
+}
+.drawer-overlay.open { display: block; animation: fadeIn 0.2s ease; }
+
+/* === SIDE DRAWER === */
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 78vw;
+  max-width: 300px;
+  height: 100%;
+  background: var(--color-background-primary);
+  z-index: 300;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+  display: flex;
+  flex-direction: column;
+  border-left: 0.5px solid var(--color-border-secondary);
+  box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+}
+.drawer.open { transform: translateX(0); }
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.drawer-close-btn {
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.drawer-menu {
+  flex: 1;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.drawer-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-radius: var(--border-radius-md);
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-weight: 400;
+  border: 0.5px solid transparent;
+}
+.drawer-item:hover { background: var(--color-background-secondary); }
+.drawer-item.active-drawer {
+  background: var(--brand-light);
+  color: var(--brand-dark);
+  border-color: var(--brand-border);
+  font-weight: 500;
+}
+.drawer-icon { font-size: 18px; }
+.drawer-footer {
+  padding: 16px;
+  border-top: 0.5px solid var(--color-border-tertiary);
+}
+.drawer-darkmode-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+body.dark-mode .drawer {
+  background: #1e1e1e;
+  border-left-color: #3a3a3a;
+}
+
+/* === NAVBAR (desktop) === */
 .nav {
   display: flex;
   align-items: center;
@@ -109,6 +240,20 @@ body {
   position: sticky;
   top: 0;
   z-index: 50;
+}
+.nav-desktop { display: flex; }
+
+/* === BROWSE HEADER ROWS === */
+.search-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+.filter-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .nav-logo {
@@ -216,11 +361,10 @@ body {
    BROWSE PAGE
    =========================== */
 .browse-header {
-  padding: 20px 20px 12px;
+  padding: 16px 16px 10px;
   display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
 }
 
 .search-wrap {
@@ -1051,9 +1195,14 @@ body {
    RESPONSIVE
    =========================== */
 @media (max-width: 640px) {
-  .nav-tabs {
-    display: none;
-  }
+  /* Show mobile bar, hide desktop nav */
+  .nav-mobile { display: flex; }
+  .nav-desktop { display: none !important; }
+
+  /* Browse: searchbar full-width centered, filters below */
+  .search-row { margin-bottom: 10px; }
+  .search-wrap { width: 100%; max-width: 100%; }
+  .filter-row { justify-content: flex-start; }
 
   .sec-stats {
     grid-template-columns: repeat(2, 1fr);
@@ -1073,6 +1222,17 @@ body {
   .form-row {
     grid-template-columns: 1fr;
   }
+
+  .item-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 0 12px 20px;
+  }
+
+  .stats-bar { padding: 0 12px 12px; }
+  .security-wrap { padding: 12px; }
+  .sec-table { font-size: 11px; }
+  .sec-table th, .sec-table td { padding: 6px 6px; }
 }
 
 /* =========================================

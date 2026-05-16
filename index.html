@@ -11,7 +11,8 @@
 
 <h2 class="sr-only">CampusFind — Lost and Found web app with browse, report, chat, and security features</h2>
 
-<nav class="nav">
+<!-- MOBILE TOP BAR -->
+<nav class="nav-mobile">
   <div class="nav-logo">
     <div class="logo-icon">
       <svg viewBox="0 0 16 16">
@@ -24,32 +25,99 @@
       <div class="logo-sub">Lost &amp; Found System</div>
     </div>
   </div>
+  <button class="hamburger-btn" id="hamburger-btn" onclick="openDrawer()" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
 
+<!-- DESKTOP NAVBAR (hidden on mobile) -->
+<nav class="nav nav-desktop">
+  <div class="nav-logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 16 16">
+        <circle cx="6" cy="6" r="4"/>
+        <line x1="9.5" y1="9.5" x2="13" y2="13"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-text">CampusFind</div>
+      <div class="logo-sub">Lost &amp; Found System</div>
+    </div>
+  </div>
   <div class="nav-tabs">
     <div class="tab active" onclick="showPage('browse', this)">Browse Items</div>
     <div class="tab" onclick="showPage('report', this)">Report Found</div>
     <div class="tab" onclick="showPage('verify', this)">Verify Ownership</div>
     <div class="tab" onclick="showPage('security', this)">Security</div>
   </div>
-
-  <button id="theme-toggle" onclick="toggleDarkMode()" style="margin-left: 15px; background: none; border: none; font-size: 20px; cursor: pointer; transition: transform 0.2s;">
-    🌙
-  </button>
+  <button id="theme-toggle-desktop" onclick="toggleDarkMode()" style="margin-left: 15px; background: none; border: none; font-size: 20px; cursor: pointer; transition: transform 0.2s;">🌙</button>
 </nav>
+
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+
+<!-- SIDE DRAWER -->
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="nav-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 16 16">
+          <circle cx="6" cy="6" r="4"/>
+          <line x1="9.5" y1="9.5" x2="13" y2="13"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text">CampusFind</div>
+        <div class="logo-sub">Lost &amp; Found System</div>
+      </div>
+    </div>
+    <button class="drawer-close-btn" onclick="closeDrawer()">✕</button>
+  </div>
+
+  <div class="drawer-menu">
+    <div class="drawer-item active-drawer" data-page="browse" onclick="drawerNav('browse', this)">
+      <span class="drawer-icon">🔍</span>
+      <span>Browse Items</span>
+    </div>
+    <div class="drawer-item" data-page="report" onclick="drawerNav('report', this)">
+      <span class="drawer-icon">📋</span>
+      <span>Report Found</span>
+    </div>
+    <div class="drawer-item" data-page="verify" onclick="drawerNav('verify', this)">
+      <span class="drawer-icon">✅</span>
+      <span>Verify Ownership</span>
+    </div>
+    <div class="drawer-item" data-page="security" onclick="drawerNav('security', this)">
+      <span class="drawer-icon">🔒</span>
+      <span>Security</span>
+    </div>
+  </div>
+
+  <div class="drawer-footer">
+    <div class="drawer-darkmode-row">
+      <span>Dark Mode</span>
+      <button id="theme-toggle" onclick="toggleDarkMode()" style="background: none; border: none; font-size: 22px; cursor: pointer;">🌙</button>
+    </div>
+  </div>
+</div>
 
 <div class="content">
 
   <div class="page active" id="page-browse">
     <div class="browse-header">
-      <div class="search-wrap">
-        <svg class="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="6" cy="6" r="4"/><line x1="9.5" y1="9.5" x2="13" y2="13"/>
-        </svg>
-        <input type="text" placeholder="Search items, location, date...">
+      <div class="search-row">
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="6" cy="6" r="4"/><line x1="9.5" y1="9.5" x2="13" y2="13"/>
+          </svg>
+          <input type="text" placeholder="Search items, location, date...">
+        </div>
       </div>
-      <button class="filter-btn active-f" onclick="filterItems('all', this)">All</button>
-      <button class="filter-btn" onclick="filterItems('available', this)">Available</button>
-      <button class="filter-btn" onclick="filterItems('security', this)">At Security</button>
+      <div class="filter-row">
+        <button class="filter-btn active-f" onclick="filterItems('all', this)">All</button>
+        <button class="filter-btn" onclick="filterItems('available', this)">Available</button>
+        <button class="filter-btn" onclick="filterItems('security', this)">At Security</button>
+      </div>
     </div>
 
     <div class="stats-bar">

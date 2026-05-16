@@ -49,36 +49,74 @@ function openModal(idx) {
 }
 
 // =====================
-// DARK MODE LOGIC
+// MOBILE DRAWER LOGIC
 // =====================
+function openDrawer() {
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function drawerNav(pageId, el) {
+  // Update drawer active state
+  document.querySelectorAll('.drawer-item').forEach(d => d.classList.remove('active-drawer'));
+  if (el) el.classList.add('active-drawer');
+  // Update desktop tabs too (for consistency)
+  const desktopTabs = document.querySelectorAll('.tab');
+  const pageOrder = ['browse', 'report', 'verify', 'security'];
+  const idx = pageOrder.indexOf(pageId);
+  desktopTabs.forEach((t, i) => t.classList.toggle('active', i === idx));
+  showPage(pageId, null);
+  closeDrawer();
+}
+
+// Swipe from right edge to open drawer
+(function initSwipeDrawer() {
+  let startX = 0, startY = 0;
+  document.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = Math.abs(e.changedTouches[0].clientY - startY);
+    const drawer = document.getElementById('drawer');
+    // Swipe left (from right edge) to open
+    if (startX > window.innerWidth - 40 && dx < -40 && dy < 60) {
+      openDrawer();
+    }
+    // Swipe right to close when drawer is open
+    if (drawer.classList.contains('open') && dx > 60 && dy < 60) {
+      closeDrawer();
+    }
+  }, { passive: true });
+})();
+
 function toggleDarkMode() {
   const body = document.body;
-  const themeBtn = document.getElementById('theme-toggle');
-  
-  // Toggle class 'dark-mode' di body
-  body.classList.toggle('dark-mode');
-  
-  // Cek apakah sekarang mode gelap aktif
-  const isDarkMode = body.classList.contains('dark-mode');
-  
-  // Ubah ikon tombol (Bulan untuk terang, Matahari untuk gelap)
-  if (isDarkMode) {
-    themeBtn.textContent = '☀️';
-    // Simpan pilihan user di browser
-    localStorage.setItem('campusfind_theme', 'dark');
-  } else {
-    themeBtn.textContent = '🌙';
-    localStorage.setItem('campusfind_theme', 'light');
-  }
+  const isDarkMode = body.classList.toggle('dark-mode');
+  const emoji = isDarkMode ? '☀️' : '🌙';
+  ['theme-toggle', 'theme-toggle-desktop'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.textContent = emoji;
+  });
+  localStorage.setItem('campusfind_theme', isDarkMode ? 'dark' : 'light');
 }
 
 function loadTheme() {
   const savedTheme = localStorage.getItem('campusfind_theme');
-  const themeBtn = document.getElementById('theme-toggle');
-  
   if (savedTheme === 'dark') {
     document.body.classList.add('dark-mode');
-    if(themeBtn) themeBtn.textContent = '☀️';
+    ['theme-toggle', 'theme-toggle-desktop'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.textContent = '☀️';
+    });
   }
 }
 
