@@ -1213,10 +1213,13 @@ body.dark-mode .drawer {
     max-height: none;
   }
 
+  /* Perubahan: Sembunyikan daftar barang di HP dan beri padding untuk form */
   .chat-sidebar {
-    max-height: 180px;
-    border-right: none;
-    border-bottom: 0.5px solid var(--color-border-tertiary);
+    display: none !important; 
+  }
+
+  .chat-main {
+    padding: 15px !important; 
   }
 
   .form-row {

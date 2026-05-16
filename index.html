@@ -204,8 +204,16 @@
         <div id="verify-sidebar-list"></div>
       </div>
 
-      <div id="verify-empty" style="flex: 1; display: flex; align-items: center; justify-content: center; color: var(--color-text-tertiary); background: var(--color-background-primary);">
-        Please select an item from the sidebar to verify your claim.
+      <div id="verify-empty" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; background: var(--color-background-primary);">
+        <div style="font-size: 48px; margin-bottom: 12px;">📭</div>
+        <h3 style="color: var(--color-text-primary); margin-bottom: 8px; font-size: 16px;">No Item Selected</h3>
+        <p style="color: var(--color-text-secondary); font-size: 13px; max-width: 280px; margin-bottom: 20px; line-height: 1.5;">
+          Please select an item you want to claim from the <strong>Browse Items</strong> or <strong>Security Post</strong> menu first.
+        </p>
+        <button class="submit-btn" style="width: auto; padding: 8px 20px; font-size: 12px; border-radius: 20px;" 
+          onclick="showPage('browse', null); document.querySelectorAll('.drawer-tab').forEach((t, i) => t.classList.toggle('active', i === 0)); document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === 0));">
+          Go to Browse Items
+        </button>
       </div>
 
       <div class="chat-main" id="verify-main" style="display: none; padding: 30px; overflow-y: auto; width: 100%; height: 100%; background: var(--color-background-primary);">
