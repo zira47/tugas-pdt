@@ -661,12 +661,17 @@ window.submitClaim = async function() {
   submitBtn.disabled = true;
 
   try {
-    // 1. (Opsional) Upload foto bukti ke Supabase Storage (Menggunakan bucket yang sama)
-    // 2. Update status barang di tabel items menggunakan ID Supabase-nya
+    // 1. (Opsional) Upload foto bukti ke Supabase Storage
+    
+    // 2. Update status barang DAN simpan data penemu ke tabel items
     const { data, error } = await myDatabase
       .from('items')
-      .update({ status: 'claimed' })
-      .eq('id', item.id); // HARUS ADA kolom 'id' di tabel Supabase kamu
+      .update({ 
+        status: 'claimed',
+        found_by: nameInput.value.trim(), // Menyimpan nama pengambil dari form
+        date_found: dateInput.value       // Menyimpan tanggal diambil dari form
+      })
+      .eq('id', item.id); // Memastikan barang yang diubah tepat sesuai ID-nya
 
     if (error) throw error;
 
@@ -784,34 +789,46 @@ function renderSecurityTable() {
   if (!tbody) return;
 
   tbody.innerHTML = items.map(item => {
-    const icon = item.image_url ? '🖼️' : '📦';
-    
-    let statusBadge = '';
-    let actionBtn = ''; // Variabel baru untuk tombol aksi
+    let actionBtn = ''; 
 
-    // Logika render tombol dan badge berdasarkan status
+    // Logika render tombol aksi (sekarang berada di kolom Status)
     if (item.status === 'Published') {
-      statusBadge = '<span class="status-badge s-available">Available</span>';
       actionBtn = '<button class="sec-action sec-release" onclick="handleRelease(this)">Release</button>';
     } else if (item.status === 'claimed') {
-      statusBadge = '<span class="status-badge s-claimed">Claimed</span>';
-      // Tombol berubah jadi 'Done' dan meredup jika sudah selesai
-      actionBtn = '<button class="sec-action" disabled style="opacity: 0.5;">Done</button>'; 
+      // Tombol Done dibuat lebih terang (Abu-abu cerah) dengan warna teks putih
+      actionBtn = '<button class="sec-action" disabled style="opacity: 0.95; background-color: #6B7280; color: white;">Done</button>'; 
     } else if (item.status === 'security') {
-      statusBadge = '<span class="status-badge s-security">At Security</span>';
       actionBtn = '<button class="sec-action sec-release" onclick="handleRelease(this)">Release</button>';
     } else {
-      statusBadge = `<span class="status-badge">${item.status}</span>`;
       actionBtn = '-';
     }
 
+    // Ambil data penemu dan tanggal dari Verify (Tampilkan '-' jika belum diisi)
+    const foundBy = item.found_by || '-';
+    // Asumsi created_at ada dari Supabase, jika tidak pakai find_date
+    const dateIn = item.created_at ? item.created_at.split('T')[0] : (item.find_date || '-');
+    const dateFound = item.date_found ? item.date_found.split('T')[0] : '-';
+
+    // Desain kolom Item dengan gambar kecil di samping teks (Meniru versi React)
+    const itemImage = item.image_url 
+      ? `<img src="${item.image_url}" style="width: 100%; height: 100%; object-fit: cover;">` 
+      : `<span style="font-size: 10px;">📦</span>`;
+
     return `
       <tr>
-        <td>${icon} ${item.title}</td>
-        <td>-</td> <td>${item.lokasi_ditemukan}</td>
-        <td>${item.find_date}</td>
-        <td>${statusBadge}</td>
-        <td>${actionBtn}</td>
+        <td>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 24px; height: 24px; border-radius: 4px; background: var(--color-background-secondary); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+              ${itemImage}
+            </div>
+            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;" title="${item.title}">${item.title}</span>
+          </div>
+        </td>
+        <td>${foundBy}</td>
+        <td>${item.lokasi_ditemukan || '-'}</td>
+        <td>${dateIn}</td>
+        <td>${dateFound}</td>
+        <td style="text-align: right;">${actionBtn}</td>
       </tr>
     `;
   }).join('');
